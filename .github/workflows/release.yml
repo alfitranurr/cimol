@@ -14,16 +14,32 @@ jobs:
   release:
     runs-on: windows-latest
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v5
 
-      - uses: actions/setup-node@v4
+      - uses: actions/setup-node@v5
         with:
           node-version: 22
           cache: npm
 
+      - name: Cek versi package.json sama dengan tag
+        shell: bash
+        run: |
+          version=$(node -p "require('./package.json').version")
+          if [ "v$version" != "$GITHUB_REF_NAME" ]; then
+            echo "::error::Tag $GITHUB_REF_NAME tidak sama dengan versi package.json ($version)"
+            exit 1
+          fi
+
       - run: npm ci
 
-      - name: Build & publish
-        run: npm run release
+      - name: Build installer
+        run: npm run dist
+
+      - name: Terbitkan ke GitHub Releases
+        shell: bash
         env:
-          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          tag="$GITHUB_REF_NAME"
+          gh release view "$tag" >/dev/null 2>&1 || gh release create "$tag" --title "Cimol ${tag#v}" --generate-notes
+          gh release upload "$tag" dist/CimolSetup-*.exe dist/CimolSetup-*.exe.blockmap dist/latest.yml --clobber
