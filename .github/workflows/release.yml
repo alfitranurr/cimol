@@ -1,0 +1,29 @@
+name: Release
+
+# Push tag vX.Y.Z (mis. lewat `npm version patch && git push --follow-tags`)
+# untuk membangun installer dan menerbitkannya ke GitHub Releases.
+# Cimol yang sudah terpasang akan mendeteksi rilis ini lewat latest.yml.
+on:
+  push:
+    tags: ['v*']
+
+permissions:
+  contents: write
+
+jobs:
+  release:
+    runs-on: windows-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: npm
+
+      - run: npm ci
+
+      - name: Build & publish
+        run: npm run release
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}

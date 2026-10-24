@@ -1,0 +1,173 @@
+<!doctype html>
+<html lang="id">
+<head>
+  <meta charset="utf-8" />
+  <meta
+    http-equiv="Content-Security-Policy"
+    content="default-src 'self'; script-src 'self'; style-src 'self' 'unsafe-inline'; img-src 'self' data: file:; media-src 'self' file:; connect-src 'none'"
+  />
+  <title>Cimol</title>
+  <link rel="stylesheet" href="styles.css" />
+</head>
+<body>
+  <div id="notch" class="notch">
+    <div class="pill" id="pill">
+      <span class="pill-left">
+        <img id="pillArt" class="pill-art" alt="" hidden />
+        <span id="pillIcon" class="pill-icon"></span>
+      </span>
+      <span id="pillText" class="pill-text">Cimol</span>
+      <span id="pillRight" class="pill-right"></span>
+      <span id="updateDot" class="update-dot" title="Update siap dipasang" hidden></span>
+    </div>
+
+    <div class="panel" id="panel">
+      <nav class="tabs" id="tabs">
+        <button data-tab="music" class="active"><i data-icon="music"></i><span>Musik</span></button>
+        <button data-tab="lyrics"><i data-icon="lyrics"></i><span>Lirik</span></button>
+        <button data-tab="timer"><i data-icon="timer"></i><span>Timer</span></button>
+        <button data-tab="shelf"><i data-icon="shelf"></i><span>Rak</span></button>
+        <button data-tab="prayer"><i data-icon="moon"></i><span>Sholat</span></button>
+        <button data-tab="settings" class="icon-only" title="Pengaturan"><i data-icon="gear"></i></button>
+      </nav>
+
+      <!-- Musik -->
+      <section class="view active" data-view="music">
+        <div class="music" id="music">
+          <div class="cover" id="cover"><i data-icon="music"></i></div>
+          <div class="music-main">
+            <div class="music-app" id="musicApp">Tidak ada media</div>
+            <div class="music-title" id="musicTitle">Putar lagu di Spotify atau YouTube</div>
+            <div class="music-artist" id="musicArtist">Cimol akan menampilkannya di sini</div>
+            <div class="progress" id="progress"><div class="progress-fill" id="progressFill"></div></div>
+            <div class="times"><span id="timeNow">0:00</span><span id="timeEnd">0:00</span></div>
+            <div class="controls">
+              <button class="ctl" data-cmd="prev" title="Sebelumnya"><i data-icon="prev"></i></button>
+              <button class="ctl play" data-cmd="toggle" id="playBtn" title="Putar/Jeda"><i data-icon="play"></i></button>
+              <button class="ctl" data-cmd="next" title="Berikutnya"><i data-icon="next"></i></button>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <!-- Lirik -->
+      <section class="view" data-view="lyrics">
+        <div class="lyrics" id="lyrics"><p class="empty">Putar lagu untuk melihat lirik.</p></div>
+      </section>
+
+      <!-- Timer -->
+      <section class="view" data-view="timer">
+        <div class="timer">
+          <div class="timer-left">
+            <div class="timer-mode" id="timerMode">Timer</div>
+            <div class="timer-time" id="timerTime">25:00</div>
+            <div class="timer-actions">
+              <button class="btn primary" id="timerStart">Mulai</button>
+              <button class="btn" id="timerReset">Reset</button>
+            </div>
+          </div>
+          <div class="timer-right">
+            <div class="chips" id="timerPresets">
+              <button class="chip" data-min="5">5 mnt</button>
+              <button class="chip" data-min="10">10 mnt</button>
+              <button class="chip" data-min="15">15 mnt</button>
+              <button class="chip" data-min="30">30 mnt</button>
+              <button class="chip" data-min="60">1 jam</button>
+            </div>
+            <label class="custom-min">
+              <input type="number" id="timerCustom" min="1" max="600" placeholder="Menit" />
+              <button class="btn" id="timerSet">Atur</button>
+            </label>
+            <button class="btn pomodoro" id="pomodoroBtn"><i data-icon="tomato"></i>Pomodoro 25/5</button>
+          </div>
+        </div>
+      </section>
+
+      <!-- Rak file -->
+      <section class="view" data-view="shelf">
+        <div class="shelf" id="shelf">
+          <div class="shelf-empty" id="shelfEmpty">
+            <i data-icon="shelf"></i>
+            <p>Seret file ke notch untuk menyimpannya di rak.<br />Seret keluar lagi untuk memakainya.</p>
+          </div>
+          <div class="shelf-grid" id="shelfGrid"></div>
+        </div>
+        <div class="shelf-bar">
+          <span id="shelfCount"></span>
+          <button class="link" id="shelfClear">Kosongkan</button>
+        </div>
+      </section>
+
+      <!-- Sholat -->
+      <section class="view" data-view="prayer">
+        <div class="prayer">
+          <div class="prayer-head">
+            <div>
+              <div class="prayer-loc" id="prayerLoc">Mencari lokasi…</div>
+              <div class="prayer-sub" id="prayerSub"></div>
+            </div>
+            <div class="prayer-next">
+              <div class="prayer-next-label" id="prayerNextLabel"></div>
+              <div class="prayer-next-time" id="prayerNextTime"></div>
+            </div>
+            <button class="ctl small" id="prayerRefresh" title="Muat ulang"><i data-icon="refresh"></i></button>
+          </div>
+          <div class="prayer-list" id="prayerList"></div>
+        </div>
+      </section>
+
+      <!-- Pengaturan -->
+      <section class="view" data-view="settings">
+        <div class="settings">
+          <div class="set-col">
+            <label class="row"><span>Mulai bersama Windows</span><input type="checkbox" id="setLogin" /></label>
+            <label class="row"><span>Lirik di notch kecil</span><input type="checkbox" id="setLyricsPill" /></label>
+            <label class="row"><span>Bunyi saat waktu sholat</span><input type="checkbox" id="setSound" /></label>
+            <div class="row">
+              <span>Suara adzan</span>
+              <span class="row-end">
+                <span class="muted ellipsis" id="setSoundName">Bunyi bawaan</span>
+                <button class="btn small" id="setSoundPick">Pilih</button>
+              </span>
+            </div>
+            <label class="row"><span>Ingatkan sebelum (menit)</span><input type="number" id="setRemind" min="0" max="60" /></label>
+          </div>
+          <div class="set-col">
+            <div class="row">
+              <span>Lokasi</span>
+              <span class="seg" id="setLocMode">
+                <button data-mode="auto">Otomatis</button>
+                <button data-mode="manual">Manual</button>
+              </span>
+            </div>
+            <div class="manual-loc" id="manualLoc">
+              <input type="text" id="setCity" placeholder="Kota, mis. Malang" />
+              <input type="text" id="setCountry" placeholder="Negara" />
+              <button class="btn small" id="setLocSave">Simpan</button>
+            </div>
+            <div class="about">
+              <div><strong>Cimol</strong> <span id="appVersion"></span></div>
+              <div class="muted" id="updateText">Status update</div>
+              <div class="about-actions">
+                <button class="btn small primary" id="updateBtn">Cek update</button>
+                <button class="link" id="githubLink">GitHub</button>
+              </div>
+            </div>
+          </div>
+        </div>
+      </section>
+    </div>
+
+    <div class="drop-hint" id="dropHint"><i data-icon="shelf"></i>Lepas untuk menyimpan di rak</div>
+  </div>
+
+  <script src="core.js"></script>
+  <script src="music.js"></script>
+  <script src="lyrics.js"></script>
+  <script src="timer.js"></script>
+  <script src="shelf.js"></script>
+  <script src="prayer.js"></script>
+  <script src="settings.js"></script>
+  <script src="app.js"></script>
+</body>
+</html>

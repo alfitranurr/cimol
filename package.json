@@ -1,0 +1,81 @@
+{
+  "name": "cimol",
+  "productName": "Cimol",
+  "version": "0.1.0",
+  "description": "Notch hijau di tepi atas Windows: musik, lirik, timer, rak file, dan waktu sholat.",
+  "main": "src/main/main.js",
+  "author": "alfitranurr",
+  "homepage": "https://github.com/alfitranurr/cimol",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/alfitranurr/cimol.git"
+  },
+  "scripts": {
+    "start": "electron .",
+    "icon": "node scripts/make-icon.mjs",
+    "dist": "electron-builder --win --publish never",
+    "release": "electron-builder --win --publish always"
+  },
+  "build": {
+    "appId": "com.alfitranurr.cimol",
+    "productName": "Cimol",
+    "directories": {
+      "output": "dist",
+      "buildResources": "build"
+    },
+    "files": [
+      "src/**/*",
+      "package.json"
+    ],
+    "electronLanguages": [
+      "en-US",
+      "id"
+    ],
+    "asarUnpack": [
+      "src/helpers/**"
+    ],
+    "extraResources": [
+      {
+        "from": "scripts/cimol-update.ps1",
+        "to": "cimol-update.ps1"
+      }
+    ],
+    "win": {
+      "target": [
+        {
+          "target": "nsis",
+          "arch": [
+            "x64"
+          ]
+        }
+      ],
+      "icon": "build/icon.ico",
+      "artifactName": "CimolSetup-${version}.${ext}"
+    },
+    "nsis": {
+      "oneClick": true,
+      "perMachine": false,
+      "allowElevation": false,
+      "createDesktopShortcut": true,
+      "runAfterFinish": true,
+      "deleteAppDataOnUninstall": false
+    },
+    "publish": [
+      {
+        "provider": "github",
+        "owner": "alfitranurr",
+        "repo": "cimol",
+        "releaseType": "release"
+      }
+    ]
+  },
+  "dependencies": {
+    "electron-updater": "^6.8.11"
+  },
+  "devDependencies": {
+    "electron": "^45.0.0",
+    "electron-builder": "^26.18.0",
+    "png-to-ico": "^3.0.2",
+    "sharp": "^0.35.5"
+  }
+}

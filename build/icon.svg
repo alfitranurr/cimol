@@ -1,0 +1,22 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 256 256">
+  <defs>
+    <linearGradient id="bg" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0" stop-color="#14402c"/>
+      <stop offset="1" stop-color="#08160f"/>
+    </linearGradient>
+    <radialGradient id="ball" cx="0.35" cy="0.3" r="0.75">
+      <stop offset="0" stop-color="#a7f3d0"/>
+      <stop offset="0.55" stop-color="#34d399"/>
+      <stop offset="1" stop-color="#059669"/>
+    </radialGradient>
+  </defs>
+  <rect x="8" y="8" width="240" height="240" rx="58" fill="url(#bg)"/>
+  <rect x="8.5" y="8.5" width="239" height="239" rx="57.5" fill="none" stroke="#34d399" stroke-opacity="0.25"/>
+  <!-- notch -->
+  <path d="M74 8h108v22a20 20 0 0 1-20 20H94a20 20 0 0 1-20-20z" fill="#04100a"/>
+  <circle cx="162" cy="29" r="5" fill="#34d399"/>
+  <!-- tiga bola cimol -->
+  <circle cx="96" cy="166" r="40" fill="url(#ball)"/>
+  <circle cx="160" cy="166" r="40" fill="url(#ball)"/>
+  <circle cx="128" cy="116" r="40" fill="url(#ball)"/>
+</svg>
