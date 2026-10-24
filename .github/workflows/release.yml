@@ -43,3 +43,4 @@ jobs:
           tag="$GITHUB_REF_NAME"
           gh release view "$tag" >/dev/null 2>&1 || gh release create "$tag" --title "Cimol ${tag#v}" --generate-notes
           gh release upload "$tag" dist/CimolSetup-*.exe dist/CimolSetup-*.exe.blockmap dist/latest.yml --clobber
+          gh release edit "$tag" --draft=false --latest

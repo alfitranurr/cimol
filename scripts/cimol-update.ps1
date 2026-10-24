@@ -81,6 +81,20 @@ function Get-Sha512Base64([string]$Path) {
     try { [Convert]::ToBase64String($sha.ComputeHash($stream)) } finally { $stream.Dispose(); $sha.Dispose() }
 }
 
+# Invoke-WebRequest di PowerShell 5.1 sangat lambat untuk file besar, jadi pakai curl.exe
+# (bawaan Windows 10/11) dan WebClient sebagai cadangan.
+function Save-Url([string]$Url, [string]$Path) {
+    $curl = Join-Path $env:SystemRoot 'System32\curl.exe'
+    if (Test-Path $curl) {
+        & $curl -fsSL --retry 3 -A 'cimol-update' -o $Path $Url
+        if ($LASTEXITCODE -eq 0) { return }
+        Write-Info "curl gagal (kode $LASTEXITCODE), mencoba WebClient..." 'DarkGray'
+    }
+    $client = New-Object System.Net.WebClient
+    $client.Headers.Add('User-Agent', 'cimol-update')
+    try { $client.DownloadFile($Url, $Path) } finally { $client.Dispose() }
+}
+
 # ---------- Task Scheduler ----------
 
 if ($UnregisterTask) {
@@ -110,8 +124,16 @@ $current = if ($installed) { $installed.Version } else { $null }
 try {
     $release = Invoke-RestMethod -Uri "https://api.github.com/repos/$Repo/releases/latest" -Headers $Headers
 } catch {
-    Write-Info "Gagal menghubungi GitHub: $($_.Exception.Message)" 'Red'
-    exit 2
+    # Endpoint /latest kadang masih memberi 404 (cache) beberapa saat setelah rilis baru terbit.
+    try {
+        $release = Invoke-RestMethod -Uri "https://api.github.com/repos/$Repo/releases?per_page=10" -Headers $Headers |
+            Where-Object { -not $_.draft -and -not $_.prerelease } |
+            Select-Object -First 1
+    } catch { $release = $null }
+    if (-not $release) {
+        Write-Info "Gagal menghubungi GitHub: $($_.Exception.Message)" 'Red'
+        exit 2
+    }
 }
 
 $latest = [version]($release.tag_name.TrimStart('v') -replace '[^\d.].*$', '')
@@ -152,11 +174,11 @@ New-Item -ItemType Directory -Force -Path $tmp | Out-Null
 $setup = Join-Path $tmp $setupAsset.name
 
 Write-Info "Mengunduh $($setupAsset.name) ($([math]::Round($setupAsset.size / 1MB, 1)) MB)..."
-Invoke-WebRequest -Uri $setupAsset.browser_download_url -OutFile $setup -UseBasicParsing -Headers @{ 'User-Agent' = 'cimol-update' }
+Save-Url $setupAsset.browser_download_url $setup
 
 if ($ymlAsset) {
     $ymlPath = Join-Path $tmp 'latest.yml'
-    Invoke-WebRequest -Uri $ymlAsset.browser_download_url -OutFile $ymlPath -UseBasicParsing -Headers @{ 'User-Agent' = 'cimol-update' }
+    Save-Url $ymlAsset.browser_download_url $ymlPath
     $expected = ([regex]::Match((Get-Content $ymlPath -Raw), '(?m)^sha512:\s*(\S+)')).Groups[1].Value
     $actual = Get-Sha512Base64 $setup
     if (-not $expected -or $expected -ne $actual) {
@@ -180,7 +202,11 @@ if ($proc.ExitCode -ne 0) {
 }
 
 $after = Get-Installed
-if ($after -and (Test-Path $after.Exe)) { Start-Process $after.Exe }
+if ($after -and (Test-Path $after.Exe)) {
+    # Kalau variabel ini terwarisi (mis. dari terminal VS Code), Cimol berjalan sebagai Node dan langsung keluar.
+    Remove-Item Env:ELECTRON_RUN_AS_NODE -ErrorAction SilentlyContinue
+    Start-Process $after.Exe
+}
 Remove-Item $tmp -Recurse -Force -ErrorAction SilentlyContinue
 
 Write-Info "Cimol v$latest terpasang." 'Green'
